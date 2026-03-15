@@ -70,6 +70,9 @@ for task in all_tasks:
     due_date = due.get('date', '')
     if due_date:
         try:
+            # 处理带时间的日期格式 (如 2026-03-09T07:02:08Z)
+            if 'T' in due_date:
+                due_date = due_date.split('T')[0]
             task_date = datetime.strptime(due_date, '%Y-%m-%d').date()
             if task_date <= today:  # 包括今天和逾期的
                 today_tasks.append(task)
@@ -85,6 +88,10 @@ if not today_tasks:
 else:
     print(f"**今日待办 ({len(today_tasks)}项)**\n")
     
+    # 统计逾期任务数和高优先级任务数
+    overdue_count = 0
+    p1_p2_count = 0
+    
     for task in today_tasks:
         priority = task.get('priority', 1)
         content = task.get('content', '无标题')
@@ -93,22 +100,37 @@ else:
         
         # 优先级文本前缀 (Todoist: 4=P1, 3=P2, 2=P3, 1=P4)
         if priority == 4:
-            priority_prefix = "(P1) "
+            priority_prefix = "(P1)"
+            p1_p2_count += 1
         elif priority == 3:
-            priority_prefix = "(P2) "
+            priority_prefix = "(P2)"
+            p1_p2_count += 1
         elif priority == 2:
-            priority_prefix = "(P3) "
+            priority_prefix = "(P3)"
         else:
-            priority_prefix = "(P4) "
+            priority_prefix = "(P4)"
         
         # 检查是否逾期
         overdue_mark = ""
         if due_date:
             try:
-                task_date = datetime.strptime(due_date, '%Y-%m-%d').date()
+                # 处理带时间的日期格式
+                check_date = due_date.split('T')[0] if 'T' in due_date else due_date
+                task_date = datetime.strptime(check_date, '%Y-%m-%d').date()
                 if task_date < today:
                     overdue_mark = " [逾期]"
+                    overdue_count += 1
             except:
                 pass
         
         print(f"- {priority_prefix}{content}{overdue_mark}")
+    
+    # 输出建议
+    print("\n💡 **建议**:", end="")
+    if overdue_count > 0:
+        print(f" 有 {overdue_count} 项任务已逾期，建议优先处理。", end="")
+    if p1_p2_count > 0:
+        print(f" 共有 {p1_p2_count} 项高优先级(P1/P2)任务待完成。", end="")
+    if overdue_count == 0 and p1_p2_count == 0:
+        print(" 今天的任务都比较轻松，可以合理安排时间。", end="")
+    print()
