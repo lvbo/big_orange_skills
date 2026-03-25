@@ -1,7 +1,7 @@
 {
-  "access_token": "BQALsGVyO7YxmN1w9dAJJaW2qKY1tbkFXft6i4A2iNs_rImE-1o2rdLwsumbQssgwnGEfI34nSmto7ZUEh-y4VjxYw8trK10DussM5-S-PIlkcZGh4zO4Ye4oGiZPb4gPZiflaCm1sxdd9sJM4A6YN5JMZAxzxIo-wcri-mei7b-8mgj9CZyvcYGwVOU-XhElkvPIzNhmxZ-k9sRQLtRp10iQG0f_7H0CarKWIjIKDa-5ks6qW9Hfk-4VoMm-kpFuUMmWhT1w1sfAOIOZP9f-7xEhm7T",
+  "access_token": "BQDZzTNfOtHsTTZwHO0kDy2T-6YW8sPSpZ3WqysPiv3J57m37_I9U8UBsCorYn8lImHI9Mw2HMyaXI04eZ85RJa2SSzc5laRPrrB3qflWUG2kXsAADXU_Z-yTDu4ftM18E-FyZsQgUZJtS6x82YjHItJp8ZykSYMaQ67DECoWT9MmCFO9KWLXLRu-8Hvze0G1Y5c7ISzZb67a1gROGOZsRe9DF6ud1J1OD16rGPtfEq4D-hNThAKijYmjNdpopPJsvh_oTWZPgbggp0T_vwcUFeIysqkGhj4TIx2TRPcws5WgkCLvexyvPUPsw",
   "token_type": "Bearer",
   "expires_in": 3600,
-  "refresh_token": "AQAge__UoeLqWH61J15OEH9pkJym_PQz0CrrvO0eu-aI44flaU5_HpjGz0XaII0W09bK7HsL_aAM8kp_QMGxheoz99JJ29u5MWksOX9ntHu3R3-WqGUGBfHywYLfnLNTXz4",
-  "scope": "playlist-read-private user-library-read user-read-recently-played user-top-read"
+  "refresh_token": "AQB33dXIziCtAGJ5x-2uX7cHankboUQVYUerDsM2Vdi5I9axFD_oVe6jIIc5QFkaPh0brN-w55QBxLChjQZn2zGSP18k-03ZzThvjKQDe_cSLObkKf8Cag1Y9OruOghyztw",
+  "scope": "playlist-read-private user-library-read playlist-modify-private user-read-recently-played user-top-read"
 }
