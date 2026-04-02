@@ -19,6 +19,7 @@ _(What do they care about? What projects are they working on? What annoys them? 
 - 一线 TL，带团队
 - 关注 AI 研发、效率工具
 - 使用 Todoist 管理任务，习惯用番茄钟预估时间
+- **排期节奏**: 每周三排本周四到下周三的小组内同学们的工作安排
 
 ### 个人偏好
 - 不喜欢频繁打扰
