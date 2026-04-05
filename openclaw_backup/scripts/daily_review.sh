@@ -4,7 +4,7 @@
 
 set -e
 
-export TODOIST_API_TOKEN="739db0a1f96aa15d5aae5441e8046ea73c3fa9a2"
+export TODOIST_API_TOKEN="334fc74ec9c33912818263beb4ebe738e6bbedd2"
 export ICLOUD_USERNAME="lvbo09@icloud.com"
 export ICLOUD_APP_PASSWORD="vzns-vduf-fofu-wgaj"
 
