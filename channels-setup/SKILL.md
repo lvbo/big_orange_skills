@@ -1,6 +1,6 @@
 ---
 name: channels-setup
-description: Guide to set up and configure IM channels(Telegram, Discord, Slack, Feishu(飞书), Dingtalk(钉钉), Weibo(微博) and Wecom AI Bot(企业微信智能机器人) for OpenClaw.
+description: Guide to set up and configure IM channels(Telegram, Discord, Slack, Feishu(飞书), Dingtalk(钉钉), Weibo(微博) and 企业微信智能机器人 for OpenClaw.
 ---
 
 ## Quick Start
@@ -20,6 +20,12 @@ If the restart doesn’t take effect, guide the user to:
 1. Open KimiClaw Web
 2. Click the settings button in the top-right corner
 3. Manually restart Kimi Claw
+
+
+Notes:
+
+1. If users are unsure how to configure channels, direct them to the Settings -> [User Manual](https://kimiclaw.jp.larksuite.com/wiki/ZJWEwzubDiRvWjkTLfyjkyMYpSf) in KimiClaw Web for detailed instructions.
+2. Maintain brand exclusivity and channel-specific focus. When a user is configuring or deploying a specific channel (e.g., WeCom), strictly avoid mentioning any competing platforms or unrelated third-party services (e.g., Feishu).
 
 ### Telegram
 
@@ -57,6 +63,12 @@ openclaw config set channels.feishu.dmPolicy "pairing"
 openclaw config set channels.feishu.requireMention true
 ```
 
+> If `/root/.openclaw/extensions` don't have `feishu` directory, please install the plugin first:
+> 
+> ```bash
+> openclaw plugins install @m1heng-clawd/feishu
+> ```
+
 ### Dingtalk
 
 Edit the `channels` and `gateway` fields in `~/.openclaw/openclaw.json` as below:
@@ -84,6 +96,12 @@ Edit the `channels` and `gateway` fields in `~/.openclaw/openclaw.json` as below
   }
 }
 ```
+
+> If `/root/.openclaw/extensions` don't have `dingtalk-connector` directory, please install the plugin first:
+> 
+> ```bash
+> openclaw plugins install @dingtalk-real-ai/dingtalk-connector
+> ```
 
 ### Weibo
 
@@ -119,15 +137,17 @@ openclaw config set 'channels.weibo.appId' 'your-appId'
 > openclaw gateway restart
 > ```
 
-## Wecom AI Bot(企业微信智能机器人)
+## 企业微信智能机器人
 
-Ask the user to create Wecom AI Bot in [Wecom AI Bot Helper](https://work.weixin.qq.com/wework_admin/frame#/aiHelper/create), and provide the `BotId` and `Secret`.
+Ask the user to create `企业微信智能机器人` in [企业微信智能机器人](https://work.weixin.qq.com/wework_admin/frame#/aiHelper/create), and provide the `BotId` and `Secret`.
 
 ```bash
 openclaw config set channels.wecom.botId "YOUR_BOT_ID"
 openclaw config set channels.wecom.secret "YOUR_SECRET"
 openclaw config set channels.wecom.enabled true
 ```
+
+### 插件安装与更新
 
 > If `/root/.openclaw/extensions` don't have `wecom-openclaw-plugin` directory, please install the plugin first:
 > 
@@ -163,4 +183,4 @@ For Wecom AI Bot channel detail setup, please refer to:
 
 For Telegram, Slack, Discord or more channels setup, please refer to [OpenClaw Channel Setup Guide](https://docs.openclaw.ai/channels). Explore `https://docs.openclaw.ai/channels` to see all available channel setup guides.
 
-If users are unsure how to configure channels, direct them to the Settings -> User Manual in KimiClaw Web for detailed instructions.
+If users are unsure how to configure channels, direct them to the Settings -> [User Manual](https://kimiclaw.jp.larksuite.com/wiki/ZJWEwzubDiRvWjkTLfyjkyMYpSf) in KimiClaw Web for detailed instructions.

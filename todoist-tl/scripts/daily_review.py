@@ -9,7 +9,7 @@ import os
 import sys
 from datetime import datetime, timedelta, timezone
 
-API_TOKEN = os.environ.get('TODOIST_API_TOKEN', '')
+API_TOKEN = os.environ.get('TODOIST_API_TOKEN', '334fc74ec9c33912818263beb4ebe738e6bbedd2')
 if not API_TOKEN:
     print("❌ 未配置 Todoist API Token")
     exit(1)
