@@ -137,12 +137,14 @@
 ### 历史任务（已取消）
 | 任务名称 | 原时间 | 渠道 | 取消前状态 |
 |---------|------|------|-----------|
-| Todoist 每日任务推送 | 9:19 AM | Telegram | ✅ 正常 |
-| Todoist 每日回顾 | 10:13 PM | Telegram | ✅ 正常 |
-| 电影提醒 | 周五 20:07 | kimi-claw | ✅ 正常 |
-| GitHub 配置备份 | 3:07 AM | - | ✅ 正常 |
-| Gmail 每日归档报告 | 9:00 AM | kimi-claw | ⏸️ 已暂停 |
+| Todoist 每日任务推送 | 8:59 AM | kimi-claw | ✅ 正常 |
+| Todoist 每日待办 - Telegram | 8:53 AM | Telegram | ❌ 已报错 |
+| Todoist 每日日回顾 | 9:57 PM | Telegram | ✅ 正常 |
 | Gmail 自动检查 (futuretune878) | 每5小时 | - | ⏸️ 已暂停 |
 | Gmail 自动检查 (lvbo09) | 每5小时 | - | ⏸️ 已暂停 |
-| laken_backup 拉取 | 7:00 AM | QQ | ✅ 正常 |
-| 技能仓库备份 | 每周一 9:07 | - | ✅ 正常 |
+| Gmail 每日归档报告 | 8:52 AM | kimi-claw | ❌ 已报错 |
+| laken_backup 拉取 | 7:02 AM | QQ | ✅ 正常 |
+| 技能仓库备份 | 周一 8:51 AM | - | ✅ 正常 |
+
+### 备注
+- **2026-04-25**: 因 Todoist API Token 过期（401），应用户要求**停用全部 Todoist 定时推送**（含每日待办推送 + 日回顾）。如后续恢复，需重新获取有效 API Token 后手动启用。
