@@ -1,8 +1,0 @@
-# Todoist 每日任务推送 - 09:19 执行
-19 9 * * * /root/.openclaw/workspace/scripts/todoist_daily_with_retry.sh >> /root/.openclaw/workspace/logs/todoist_cron.log 2>&1
-
-# Todoist 每日回顾 - 22:13 执行
-13 22 * * * /root/.openclaw/workspace/scripts/daily_review.sh >> /root/.openclaw/workspace/logs/todoist_review.log 2>&1
-
-# 电影提醒 - 每周五 20:07
-7 20 * * 5 /root/.openclaw/workspace/scripts/movie_friday_check.sh >> /root/.openclaw/workspace/logs/movie_reminder.log 2>&1
