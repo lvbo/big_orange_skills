@@ -1,102 +1,106 @@
 ---
 name: obsidian-morning-daily-note
-description: Create a morning journal note from a template, normalize its daily and current-month tags, and link it from the corresponding daily note. Use when the user asks to create, prepare, or write a morning journal (晨间日记), daily morning note, or similar.
+description: 从模板创建当天的晨间日记，规范化日期标签，并在对应的 Obsidian 当日日记中添加双向链接。当用户要求创建、准备或撰写晨间日记、每日晨记，或开始当天记录时使用。
 ---
 
-# Obsidian Morning Daily Note
+# Obsidian 晨间日记
 
-Create a morning journal note from a template, normalize its date tags, and link it from the corresponding daily note.
+从模板创建当天的晨间日记，规范化日期标签，并将其链接到对应的当日日记。整个流程直接读写文件，不自动打开 Obsidian 或新创建的文档。
 
-## Prerequisites
+## 前置条件
 
-- Obsidian CLI is installed and configured (`obsidian version` works)
-- Template file exists at `/templates/【模板】晨间日记.md`
-- Vault has `journals/` and `journals-morning/` folders
+- 晨间日记模板存在：`templates/【模板】晨间日记.md`
+- 当日日记模板存在：`templates/【模板】Habit Tracker - 上午.md`
+- Vault 中存在 `journals/` 和 `journals-morning/` 目录
 
-## Procedure
+## 操作流程
 
-### 1. Compute today's date keys
+### 1. 计算今天所需的日期格式
 
 ```bash
-# Date formats used by this skill
-TODAY_YYYYMMDD=$(date +%Y%m%d)    # e.g. 20260417
-TODAY_MMDD=$(date +%m%d)          # e.g. 0417
-TODAY_MONTH=$(date +%-m)          # e.g. 4
-TODAY_YYYYMM=$(date +%Y%m)        # e.g. 202604
-TODAY_UNDERSCORE=$(date +%Y_%m_%d) # e.g. 2026_04_17
+# 此技能使用的日期格式
+TODAY_YYYYMMDD=$(date +%Y%m%d)     # 例如 20260417
+TODAY_MMDD=$(date +%m%d)           # 例如 0417
+TODAY_MONTH=$(date +%-m)           # 例如 4
+TODAY_YYYYMM=$(date +%Y%m)         # 例如 202604
+TODAY_DATE=$(date +%Y-%m-%d)       # 例如 2026-04-17
 ```
 
-### 2. Check if morning journal already exists
+### 2. 检查晨间日记是否已存在
 
-Target file: `journals-morning/${TODAY_YYYYMMDD}.md`
+目标文件：`journals-morning/${TODAY_YYYYMMDD}.md`
 
-If the file already exists, stop and inform the user: "今日晨间日记已存在，无需重复创建。"
+如果文件已经存在，停止创建并告知用户：“今日晨间日记已存在，无需重复创建。”
 
-### 3. Read the template
+### 3. 读取晨间日记模板
 
-Read the file at `/templates/【模板】晨间日记.md`.
+读取 `templates/【模板】晨间日记.md`。
 
-### 4. Normalize date tags
+### 4. 规范化日期标签
 
-In the template's YAML frontmatter `tags` list:
+在模板 YAML frontmatter 的 `tags` 列表中：
 
-- Remove every existing day tag matching `#day/NNNN`.
-- Remove every existing Chinese month tag matching `N月` or `NN月`.
-- Remove every existing year-month tag matching `yearAndmonth/NNNNNN`.
-- Preserve all unrelated tags and their order.
-- Add these three tags exactly once:
+- 删除所有匹配 `#day/NNNN` 的已有日期标签。
+- 删除所有匹配 `N月` 或 `NN月` 的已有月份标签。
+- 删除所有匹配 `yearAndmonth/NNNNNN` 的已有年月标签。
+- 保留其他无关标签及其原有顺序。
+- 将以下三个标签各添加一次：
 
   ```yaml
   tags:
-    - ...unrelated existing tags...
+    - ...其他原有标签...
     - "#day/MMDD"
     - M月
     - yearAndmonth/YYYYMM
   ```
 
-Replace `MMDD`, `M`, and `YYYYMM` with `TODAY_MMDD`, `TODAY_MONTH`, and `TODAY_YYYYMM`. For example, on 2026-07-13 add `#day/0713`, `7月`, and `yearAndmonth/202607`.
+将 `MMDD`、`M` 和 `YYYYMM` 分别替换为 `TODAY_MMDD`、`TODAY_MONTH` 和 `TODAY_YYYYMM`。例如，在 2026-07-13 添加 `#day/0713`、`7月` 和 `yearAndmonth/202607`。
 
-Do not copy stale month tags from the template into the generated note. Treat the execution date as the source of truth.
+执行日期是唯一可信的日期来源，不要把模板中过期的日期或月份标签复制到新笔记。
 
-### 5. Write the morning journal
+### 5. 写入晨间日记
 
-Write the modified content to:
+将规范化后的模板内容写入：
 
-```
+```text
 journals-morning/${TODAY_YYYYMMDD}.md
 ```
 
-### 6. Ensure the daily note exists
+### 6. 确保当日日记存在
 
-Target daily note: `journals/${TODAY_UNDERSCORE}.md`
+目标文件：`journals/${TODAY_DATE}.md`
 
-If it does not exist, create it by running:
+如果目标文件不存在，读取 `templates/【模板】Habit Tracker - 上午.md`，并将模板内容直接写入目标文件。
 
-```bash
-obsidian daily
-```
+不要运行 `obsidian daily`、`obsidian open`、`open` 或其他会启动 Obsidian、切换界面、自动打开新建文档的命令。此技能只在文件系统中创建和修改笔记。
 
-Then read `journals/${TODAY_UNDERSCORE}.md`.
+创建或确认文件存在后，读取 `journals/${TODAY_DATE}.md`。
 
-### 7. Link the morning journal in the daily note
+### 7. 在当日日记中链接晨间日记
 
-Find the `## 晨间日记` heading in the daily note.
+查找当日日记中的 `## 晨间日记` 标题。
 
-- If the heading exists but has no link yet, add a bullet under it:
-  ```markdown
-  ## 晨间日记
-  - [[journals-morning/YYYYMMDD|晨间日记]]
-  ```
-- If the heading already contains a link to the same morning journal file, do nothing.
-- If the heading does not exist, prepend it near the top of the note (after frontmatter if any) with the link:
+- 如果标题存在但下面还没有链接，添加：
+
   ```markdown
   ## 晨间日记
   - [[journals-morning/YYYYMMDD|晨间日记]]
   ```
 
-### 8. Report to user
+- 如果标题下已经有指向同一晨间日记的链接，不做修改。
+- 如果标题不存在，在笔记顶部附近添加标题和链接；如有 frontmatter，则放在 frontmatter 之后：
 
-Summarize what was done:
-- Created `journals-morning/YYYYMMDD.md`
-- Normalized `#day/MMDD`, `M月`, and `yearAndmonth/YYYYMM` tags
-- Updated `journals/YYYY-MM-DD.md` with a back-link
+  ```markdown
+  ## 晨间日记
+  - [[journals-morning/YYYYMMDD|晨间日记]]
+  ```
+
+### 8. 向用户报告结果
+
+简要说明：
+
+- 已创建 `journals-morning/YYYYMMDD.md`
+- 已规范化 `#day/MMDD`、`M月` 和 `yearAndmonth/YYYYMM` 标签
+- 已创建或确认 `journals/YYYY-MM-DD.md` 存在
+- 已在当日日记中添加晨间日记链接
+- 整个过程未自动打开 Obsidian 文档
