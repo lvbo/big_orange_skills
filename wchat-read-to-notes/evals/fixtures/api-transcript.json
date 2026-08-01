@@ -1,0 +1,13 @@
+{
+  "search_candidates": [
+    {"bookId": "book-a", "title": "活着", "author": "作者甲"},
+    {"bookId": "book-b", "title": "活着", "author": "作者乙"}
+  ],
+  "book_info": {"bookId": "book-a", "title": "活着", "author": "作者甲"},
+  "bookmarklist": [{"bookmarkId": "u1", "chapterUid": 1, "range": "1-5", "markText": "示例划线"}],
+  "review_pages": [
+    {"synckey": 10, "hasMore": true, "reviews": [{"reviewId": "r1", "chapterUid": 1, "content": "示例想法"}]},
+    {"synckey": 20, "hasMore": false, "reviews": [{"reviewId": "r2", "content": "全书点评"}]}
+  ],
+  "image_urls": []
+}

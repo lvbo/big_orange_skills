@@ -1,106 +1,34 @@
 ---
 name: obsidian-morning-daily-note
-description: 从模板创建当天的晨间日记，规范化日期标签，并在对应的 Obsidian 当日日记中添加双向链接。当用户要求创建、准备或撰写晨间日记、每日晨记，或开始当天记录时使用。
+description: 从模板创建或修复当天的晨间日记，并确保对应的 Obsidian 当日日记和双向链接存在。当用户明确要求创建、准备、补建或修复今日晨间日记/每日晨记时使用；完整的“开始今天”流程由 start-today 编排。
 ---
 
 # Obsidian 晨间日记
 
-从模板创建当天的晨间日记，规范化日期标签，并将其链接到对应的当日日记。整个流程直接读写文件，不自动打开 Obsidian 或新创建的文档。
+幂等地准备当天晨间日记以及它与当日日记的关联。只读写文件，不自动打开 Obsidian。
 
 ## 前置条件
 
-- 晨间日记模板存在：`templates/【模板】晨间日记.md`
-- 当日日记模板存在：`templates/【模板】Habit Tracker - 上午.md`
-- Vault 中存在 `journals/` 和 `journals-morning/` 目录
+- 晨间日记模板：`templates/【模板】晨间日记.md`
+- 当日日记模板：`templates/【模板】Habit Tracker - 上午.md`
+- 目录：`journals-morning/`、`journals/`
 
-## 操作流程
+## 工作流程
 
-### 1. 计算今天所需的日期格式
+1. 使用本机 `date` 计算 `YYYYMMDD`、`MMDD`、`M`、`YYYYMM` 和 `YYYY-MM-DD`。执行日期是唯一可信的日期来源。
+2. 检查 `journals-morning/YYYYMMDD.md`：
+   - 不存在时，读取晨间日记模板，保留无关标签及顺序，删除模板中匹配 `#day/NNNN`、`N月`/`NN月`、`yearAndmonth/NNNNNN` 的旧标签，再各添加一次 `#day/MMDD`、`M月`、`yearAndmonth/YYYYMM` 后创建文件。
+   - 已存在时，不覆盖或重新套用模板；记录为“已存在”，继续后续步骤。晨间日记已存在不代表整个流程完成。
+3. 检查 `journals/YYYY-MM-DD.md`。不存在时从当日日记模板原样创建；存在时保留全文。
+4. 在当日日记的 `## 晨间日记` 章节确保恰好存在一个 `[[journals-morning/YYYYMMDD|晨间日记]]`：
+   - 章节存在时，仅在该章节缺少目标链接时补入；若有模板留下的空链接或明显的晨间日记占位链接，则用目标链接替换，避免并列保留占位符。
+   - 章节不存在时，在 YAML frontmatter 之后插入该标题和链接。
+   - 如果目标链接重复出现，只删除完全相同、且位于该章节内的额外副本；无法确认是否为用户有意保留时停止修改并报告。
+   - 不删除用户写下的其他内容或其他日期的有效链接；遇到无法可靠判断的占位内容时保留并报告。
+5. 重新读取两个文件并验证：文件均存在；新建晨记的三个日期标签各出现一次；当日日记的 `## 晨间日记` 章节内目标链接恰好出现一次（其他章节的合法引用不计入）；除计划内位置外没有改动。
 
-```bash
-# 此技能使用的日期格式
-TODAY_YYYYMMDD=$(date +%Y%m%d)     # 例如 20260417
-TODAY_MMDD=$(date +%m%d)           # 例如 0417
-TODAY_MONTH=$(date +%-m)           # 例如 4
-TODAY_YYYYMM=$(date +%Y%m)         # 例如 202604
-TODAY_DATE=$(date +%Y-%m-%d)       # 例如 2026-04-17
-```
+不要运行 `obsidian daily`、`obsidian open`、`open` 或其他会启动应用、切换界面的命令。只有在对应目标文件缺失、确实需要新建时才要求相应模板存在；目标文件已经存在时，模板缺失不能阻断链接检查或修复。缺少必要目录、创建所需模板不存在、模板 frontmatter 无法安全解析或写后验证失败时停止并明确报告，不要声称流程成功。
 
-### 2. 检查晨间日记是否已存在
+## 结果报告
 
-目标文件：`journals-morning/${TODAY_YYYYMMDD}.md`
-
-如果文件已经存在，停止创建并告知用户：“今日晨间日记已存在，无需重复创建。”
-
-### 3. 读取晨间日记模板
-
-读取 `templates/【模板】晨间日记.md`。
-
-### 4. 规范化日期标签
-
-在模板 YAML frontmatter 的 `tags` 列表中：
-
-- 删除所有匹配 `#day/NNNN` 的已有日期标签。
-- 删除所有匹配 `N月` 或 `NN月` 的已有月份标签。
-- 删除所有匹配 `yearAndmonth/NNNNNN` 的已有年月标签。
-- 保留其他无关标签及其原有顺序。
-- 将以下三个标签各添加一次：
-
-  ```yaml
-  tags:
-    - ...其他原有标签...
-    - "#day/MMDD"
-    - M月
-    - yearAndmonth/YYYYMM
-  ```
-
-将 `MMDD`、`M` 和 `YYYYMM` 分别替换为 `TODAY_MMDD`、`TODAY_MONTH` 和 `TODAY_YYYYMM`。例如，在 2026-07-13 添加 `#day/0713`、`7月` 和 `yearAndmonth/202607`。
-
-执行日期是唯一可信的日期来源，不要把模板中过期的日期或月份标签复制到新笔记。
-
-### 5. 写入晨间日记
-
-将规范化后的模板内容写入：
-
-```text
-journals-morning/${TODAY_YYYYMMDD}.md
-```
-
-### 6. 确保当日日记存在
-
-目标文件：`journals/${TODAY_DATE}.md`
-
-如果目标文件不存在，读取 `templates/【模板】Habit Tracker - 上午.md`，并将模板内容直接写入目标文件。
-
-不要运行 `obsidian daily`、`obsidian open`、`open` 或其他会启动 Obsidian、切换界面、自动打开新建文档的命令。此技能只在文件系统中创建和修改笔记。
-
-创建或确认文件存在后，读取 `journals/${TODAY_DATE}.md`。
-
-### 7. 在当日日记中链接晨间日记
-
-查找当日日记中的 `## 晨间日记` 标题。
-
-- 如果标题存在但下面还没有链接，添加：
-
-  ```markdown
-  ## 晨间日记
-  - [[journals-morning/YYYYMMDD|晨间日记]]
-  ```
-
-- 如果标题下已经有指向同一晨间日记的链接，不做修改。
-- 如果标题不存在，在笔记顶部附近添加标题和链接；如有 frontmatter，则放在 frontmatter 之后：
-
-  ```markdown
-  ## 晨间日记
-  - [[journals-morning/YYYYMMDD|晨间日记]]
-  ```
-
-### 8. 向用户报告结果
-
-简要说明：
-
-- 已创建 `journals-morning/YYYYMMDD.md`
-- 已规范化 `#day/MMDD`、`M月` 和 `yearAndmonth/YYYYMM` 标签
-- 已创建或确认 `journals/YYYY-MM-DD.md` 存在
-- 已在当日日记中添加晨间日记链接
-- 整个过程未自动打开 Obsidian 文档
+分别说明晨间日记和当日日记是“已创建”还是“已存在”，链接是“已补充”还是“已存在”，以及是否通过写后验证。即使晨间日记原本存在，也要报告对当日日记和链接所做的修复。

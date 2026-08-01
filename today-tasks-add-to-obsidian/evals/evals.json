@@ -1,0 +1,28 @@
+{
+  "skill_name": "today-tasks-add-to-obsidian",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "准备今日待办。当日日记已存在，会议 3 小时，任务标记合计 6 小时。",
+      "expected_output": "调用统一同步流程；总计等于 9 小时时不写容量提醒。",
+      "files": ["evals/fixtures/scenarios.md"],
+      "expectations": [
+        "不维护第二套 Calendar 或 Things 写入规则",
+        "540 分钟时不存在容量提醒",
+        "重复运行不重复计划条目"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "刷新后今日计划从 9 小时变为 9 小时 1 分钟，随后又降回 9 小时。",
+      "expected_output": "超过阈值时创建唯一受管提醒，降回阈值时只删除受管提醒。",
+      "files": ["evals/fixtures/scenarios.md"],
+      "expectations": [
+        "541 分钟时出现唯一提醒",
+        "540 分钟时受管提醒被移除",
+        "用户手写的相似提醒不会被删除",
+        "唯一且位于规定位置的旧版精确提醒在降回 540 分钟时被删除"
+      ]
+    }
+  ]
+}

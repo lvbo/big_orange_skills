@@ -1,0 +1,28 @@
+{
+  "skill_name": "week-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "做包含 2025-12-31 的那一周个人周回顾。请正确处理跨年 ISO 周，并把周日对应的次周一晨记也纳入。",
+      "expected_output": "按 ISO week-year 确定周一至周日及目标文件，正确关联 D+1 晨记。",
+      "files": ["evals/fixtures/scenarios.md"],
+      "expectations": [
+        "目标周标识由 %G-W%V 而不是自然年 %Y 生成",
+        "周日证据允许来自下一周周一晨记",
+        "🍠 按 15 分钟统计",
+        "同一任务跨两天的两个 25 分钟时间片合计 50 分钟，每天文字时长与 🥔 不重复计算"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "重跑同一周的个人周回顾；同一周文件里已经有工作周报和一份个人周回顾。微信读书接口本次不可用。",
+      "expected_output": "只更新个人周回顾区块，保留工作周报，并明确阅读数据缺失。",
+      "files": ["evals/fixtures/scenarios.md"],
+      "expectations": [
+        "week-review 标记各只有一个",
+        "writing-weekly-report 区块完全保留",
+        "不把微信读书缺失解释为阅读 0"
+      ]
+    }
+  ]
+}

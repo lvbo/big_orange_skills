@@ -1,0 +1,27 @@
+{
+  "skill_name": "start-today",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "开始今天。晨记已存在，日记和链接缺失，Calendar 与 Things 有今日计划。",
+      "expected_output": "修复日记与链接后继续同步计划并检查容量，最后汇总每一步状态。",
+      "files": ["evals/fixtures/scenarios.md"],
+      "expectations": [
+        "晨记已存在不会阻断后续步骤",
+        "先确认当日日记可写再同步计划",
+        "最终验证覆盖晨记、链接、计划和容量提醒"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "再执行一次开始今天，所有外部数据和笔记都没有变化。",
+      "expected_output": "整个流程幂等，报告已存在或无变化，不产生重复内容。",
+      "files": ["evals/fixtures/scenarios.md"],
+      "expectations": [
+        "晨记链接、Calendar、Things 和容量提醒均不重复",
+        "各子步骤的 no-op 被视为正常状态",
+        "最终验证仍然执行"
+      ]
+    }
+  ]
+}

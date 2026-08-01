@@ -1,0 +1,37 @@
+{
+  "skill_name": "llm-wiki",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "摄取 raw/articles/example.md，同一个来源此前已经处理过，但原文新增了一段。",
+      "expected_output": "按稳定 source_id 原位更新摘要和相关知识页，索引不重复，raw 保持不变。",
+      "files": [
+        "evals/fixtures/ingest/raw/articles/example.md",
+        "evals/fixtures/ingest/wiki/summaries/articles-example.md",
+        "evals/fixtures/ingest/wiki/indexes/All-Sources.md",
+        "evals/fixtures/ingest/wiki/indexes/All-Concepts.md",
+        "evals/fixtures/ingest/wiki/indexes/All-Entities.md"
+      ],
+      "expectations": [
+        "source_id 使用原文件相对路径",
+        "同一来源不会创建第二份摘要或重复索引链接",
+        "只在持久化内容变化时追加一次日志",
+        "raw 文件完全不变"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "根据我的 wiki 回答：什么是稳定来源 ID？不要保存。",
+      "expected_output": "使用 Query 模式只读回答并引用知识库页面，不写 outputs 或日志。",
+      "files": [
+        "evals/fixtures/query/wiki/indexes/All-Concepts.md",
+        "evals/fixtures/query/wiki/concepts/稳定来源 ID.md"
+      ],
+      "expectations": [
+        "未获明确授权时不写文件",
+        "回答可追溯到实际读取的 wiki 页面",
+        "不会把普通问答转换成 Ingest 或 Lint"
+      ]
+    }
+  ]
+}

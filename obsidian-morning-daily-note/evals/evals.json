@@ -1,0 +1,28 @@
+{
+  "skill_name": "obsidian-morning-daily-note",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "今日晨间日记已经存在，但当日日记不存在。请准备今日晨记。",
+      "expected_output": "保留已有晨记，继续创建当日日记并补充唯一链接。",
+      "files": ["evals/fixtures/scenarios.md"],
+      "expectations": [
+        "不会因晨记已存在而提前退出",
+        "当日日记从模板创建",
+        "目标晨记链接恰好出现一次"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "晨记和日记都存在，但晨间日记章节只有模板空占位。请修复后再重跑一次。",
+      "expected_output": "用目标链接替换安全占位；第二次运行保持 no-op。",
+      "files": ["evals/fixtures/scenarios.md"],
+      "expectations": [
+        "空占位被替换而不是并列保留",
+        "重复运行不产生重复链接",
+        "不会自动打开 Obsidian",
+        "其他章节中的合法晨记引用不会导致本章节验证失败"
+      ]
+    }
+  ]
+}

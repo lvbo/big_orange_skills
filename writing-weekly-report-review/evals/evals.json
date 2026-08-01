@@ -1,0 +1,27 @@
+{
+  "skill_name": "writing-weekly-report-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我写上周给团队看的工作周报。日记里同时有工作项目、家庭活动和个人阅读。",
+      "expected_output": "默认选择上一完整 ISO 周，只纳入有证据的工作内容并写入独立工作周报区块。",
+      "files": ["evals/fixtures/scenarios.md"],
+      "expectations": [
+        "默认范围是上一完整 ISO 周",
+        "不把家庭和纯个人阅读写进工作周报",
+        "进展、风险和思考均有日记事实支持"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "更新这一周的工作周报，目标文件已有个人周回顾和旧工作周报。",
+      "expected_output": "只替换 writing-weekly-report 稳定区块，保留个人周回顾和其他原文。",
+      "files": ["evals/fixtures/scenarios.md"],
+      "expectations": [
+        "工作周报标记各只有一个",
+        "个人周回顾区块保持不变",
+        "素材不足的状态标为待确认而非虚构结果"
+      ]
+    }
+  ]
+}

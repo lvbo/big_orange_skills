@@ -1,0 +1,32 @@
+{
+  "skill_name": "wchat-read-to-notes",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "整理微信读书里的《活着》笔记，搜索返回多个同名或不同版本结果。",
+      "expected_output": "列出候选让用户消歧，不猜 bookId，也不提前创建笔记文件。",
+      "files": ["evals/fixtures/api-transcript.json"],
+      "expectations": [
+        "使用 weread-skills 搜索并显式传 scope=10",
+        "多个候选时请求用户选择",
+        "确认 bookId 前不写文件"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "更新一本已有 book_id 的微信读书笔记。接口提供全部划线和想法，但没有正文插图 URL。",
+      "expected_output": "分页拉取并原位更新两份笔记，保留手工区块；图片降级但不启动 GUI。",
+      "files": [
+        "evals/fixtures/api-transcript.json",
+        "evals/fixtures/existing/pages-ai/活着-读书笔记.md",
+        "evals/fixtures/existing/pages-ai/活着-读书笔记-二次整理版.md"
+      ],
+      "expectations": [
+        "完整获取 bookmarklist，想法按 synckey/hasMore 遍历全部分页，并按稳定 ID 去重",
+        "保真导出与二次整理均按 book_id 原位更新",
+        "没有图片来源时记录降级且不操作 GUI",
+        "二次整理中的原文和用户想法均可追溯"
+      ]
+    }
+  ]
+}

@@ -1,289 +1,197 @@
 ---
 name: llm-wiki
-description: 处理我的笔记时使用。基于 LLM Wiki 模式，结合 PARA 方法论。
+description: 维护 Obsidian 中从 raw/ 到 wiki/ 的 LLM Wiki 编译层，并基于 wiki 做有出处的知识问答或健康检查。用户要求处理/摄取 raw 原始资料、更新 wiki 摘要/概念/实体/索引、基于知识库回答问题，或检查 wiki 的断链、重复概念和内容健康度时使用；普通日记、计划、周月回顾和仅编辑 pages-ai 的任务不要触发。
 ---
 
-## 触发条件
+# LLM Wiki
 
+把 `raw/` 视为只读源数据，把 `wiki/` 视为可重复生成和增量维护的知识编译层。使用 PARA 页面作为关联上下文，但不要把本 Skill 扩展成通用 Obsidian 编辑器。
 
-## 页面模板规范
+## 边界与不变量
 
-### 摘要页 (wiki/summaries/)
+- `raw/` 只读：不得修改、移动、重命名、删除其中的文件，也不得向原文补 frontmatter。
+- `wiki/` 由 LLM 维护：允许创建和更新摘要、概念、实体、索引与 `wiki/log.md`。
+- `outputs/qa/`、`outputs/health/` 只在对应模式明确要求落盘时写入。
+- `pages-ai/` 是混合维护区：可以读取并从 wiki 页面链接到已有页面；只有用户明确要求时才修改 `pages-ai/`。
+- 所有事实都应能追溯到 `raw/` 中的来源。不能从来源确认的内容标记为“待验证”，不要写成确定事实。
 
-文件名：`{Source}-原文标题.md`
+## 模式选择
+
+先根据用户意图选择一种模式；不要因为“每周”到了就自动执行任何任务。
+
+1. **Ingest（摄取）**：用户要求处理 `raw/` 中一个或多个文件、编译新资料或更新 wiki。
+2. **Query（问答）**：用户要求基于自己的 wiki/资料回答问题。默认只读回答；只有用户明确说“保存、沉淀、写入”时才写 `outputs/qa/` 或日志。
+3. **Lint（健康检查）**：用户明确要求检查、诊断或修复 wiki。Lint 不具备自动调度能力，“每周检查”只是用户可另行安排的触发方式。
+
+若意图不明确，优先执行无写入的 Query；不要擅自把普通笔记编辑转换成 Ingest。
+
+## 来源身份与命名
+
+### 稳定来源 ID
+
+- `source_id` 使用原文件相对 Vault 根目录的 POSIX 路径，例如 `raw/articles/example.md`。
+- 同一文件重复摄取始终使用相同 `source_id`。文件内容变化不改变 ID。
+- URL、标题、作者只能作为元数据，不能替代本地来源的 `source_id`。
+- 若用户提供的是 `raw/` 下多个同名文件，依靠完整相对路径区分。
+
+### 文件名
+
+- 摘要文件优先使用 `{来源类型}-{原文件名去扩展名}.md`，例如 `articles-example.md`。
+- 如果该名称已被不同 `source_id` 占用，在文件名后追加 `sha256(source_id 的 UTF-8 字节)` 的前 8 位小写十六进制。后续重跑通过 frontmatter 中的 `source_id` 定位原页面，不再次改名。
+- 概念和实体文件使用最常用、最明确的规范名称；中文名称保留中文，英文名称使用通行大小写，不强制全部 kebab-case。
+- 文件名中的 `/ : * ? " < > |` 替换为 `-`，压缩重复空格与连字符。
+
+## 页面规范
+
+### 摘要页 `wiki/summaries/`
 
 ```yaml
 ---
 title: "文章原标题"
-source: "URL 或来源标识"
-author: "作者名（如有）"
-published: "YYYY-MM-DD（原文发布时间）"
-ingested: "YYYY-MM-DD（处理时间）"
+source_id: "raw/articles/example.md"
+source_url: "原始 URL（如有）"
+author: "作者（如有）"
+published: "YYYY-MM-DD（如能确认）"
+ingested: "YYYY-MM-DD"
+updated: "YYYY-MM-DD"
 description: "一句话描述"
 tags:
-  - "source"
-  - "领域标签"
+  - source
+  - 领域标签
 ---
 ```
 
-正文结构：
 ```markdown
 ## 核心结论
 
-1-3 条核心观点
+1-3 条核心观点。
 
 ## 关键证据
 
-支撑结论的关键论据
+- 证据，以及它支持的结论。
 
 ## 重要概念
 
-文中涉及的概念链接
+- [[概念名]]
 
-## 疑点/待验证
+## 相关实体
 
-存疑或需要进一步验证的内容
+- [[实体名]]
+
+## 疑点与待验证
+
+- 无则写“暂无”。
 
 ## 相关来源
 
-- [[其他相关摘要]]
+- [[其他摘要]]
 ```
 
-### 概念页 (wiki/concepts/)
-
-文件名：`概念名.md`（中文概念用中文名）
+### 概念页 `wiki/concepts/`
 
 ```yaml
 ---
 title: "概念名"
-created: "YYYY-MM-DD（首次创建）"
-updated: "YYYY-MM-DD（最后更新）"
+created: "YYYY-MM-DD"
+updated: "YYYY-MM-DD"
 tags:
-  - "concept"
-  - "领域标签"
+  - concept
 sources:
-  - "来源1"
-  - "来源2"
+  - "raw/articles/example.md"
+aliases: []
 ---
 ```
 
-正文结构：
 ```markdown
 ## 定义
 
-清晰简洁的定义
-
 ## 关键特征
 
-- 特征1
-- 特征2
+## 证据与例子
 
-## 证据/例子
-
-支持性证据或实例
+每条证据注明来源摘要链接。
 
 ## 相关概念
 
-- [[相关概念1]]
-- [[相关概念2]]
+## 相关项目与领域
 
-## 矛盾/争议
+仅链接已存在的 `pages-ai/01-projects/` 或 `pages-ai/02-areas/` 页面。
 
-不同来源的冲突观点
+## 矛盾与争议
 ```
 
-### 实体页 (wiki/entities/)
-
-文件名：`实体名.md`
+### 实体页 `wiki/entities/`
 
 ```yaml
 ---
 title: "实体名"
-type: "person|company|product|book|tool|..."
+type: "person|company|product|book|tool|other"
 created: "YYYY-MM-DD"
 updated: "YYYY-MM-DD"
 tags:
-  - "entity"
-  - "类型标签"
+  - entity
+  - 类型标签
 sources:
-  - "来源1"
+  - "raw/articles/example.md"
+aliases: []
 ---
 ```
 
-### 索引页 (wiki/indexes/)
+```markdown
+## 简介
 
-```yaml
----
-title: "索引名"
-updated: "YYYY-MM-DD"
----
+用来源可支持的事实说明该实体是什么。
+
+## 关键信息
+
+- 事实 — [[来源摘要]]
+
+## 与我的知识库的关系
+
+- [[相关概念]]、[[相关项目或领域]]
+
+## 争议与待验证
+
+- 无则写“暂无”。
+
+## 来源
+
+- [[来源摘要]]
 ```
 
----
+### 索引页 `wiki/indexes/`
 
-## 工作流程
+索引至少包含 `title`、`updated` frontmatter。索引项只保留一个规范 wikilink；新增时判重，删除失效链接，排序规则保持文件原有风格。不要把同一页面的别名链接重复列入。
 
-### Ingest（摄取新资料）
+## Ingest 工作流
 
-**触发条件**：用户添加新资料到 `raw/` 并要求处理
+1. 解析用户指定范围，只读取 `raw/` 中目标文件及其明确引用的 `assets/` 附件。未指定范围时先列出候选，不要默认重编整个 `raw/`。
+2. 为每个来源计算 `source_id`，检索 `wiki/summaries/` 中相同 `source_id` 的页面；存在则原位更新，不存在才创建。兼容旧页面时，只有能通过旧摘要中的唯一原始路径或 URL 明确映射到一个 `source_id` 时才补写该字段；多个候选时停止并报告，不创建第二份或猜测迁移。
+3. 生成或更新摘要。保留 `ingested` 初次日期；只有正文或其他实质元数据发生变化时才更新 `updated`，完全相同的重跑保持文件字节不变。没有证据的元数据留空，不猜测。
+4. 提取真正值得复用的概念与实体。先按标题、aliases 和语义检查是否已有页面，避免同义词分裂成重复页面。
+5. 更新概念/实体时：
+   - `sources` 按 `source_id` 去重；
+   - 证据按“事实 + 来源摘要”去重；
+   - 保留已有来源仍支持的内容；若新旧来源冲突，记录到“矛盾与争议”，不要静默覆盖。
+6. 更新 `All-Sources.md`、`All-Concepts.md`、`All-Entities.md`。只添加缺失链接，不重复追加。
+7. 仅当持久化内容确实改变时，在 `wiki/log.md` 追加一次操作记录。记录 `source_id`、新增/更新页面和关键变化；完全相同的重跑不追加日志。
+8. 复读所有写入文件，验证 YAML 可读、内部链接目标合理、`source_id` 正确、索引无重复、`raw/` 未变化。失败时修正后再汇报。
 
-**执行步骤**：
+## Query 工作流
 
-1. **读取原文**
-   - 读取 `raw/` 中的新文件
-   - 如有图片，按需读取 `assets/` 中的相关图片
+1. 先检索 `wiki/indexes/`，再读取相关摘要、概念和实体；必要时回到对应 `raw/` 原文核对。
+2. 基于实际读到的内容回答，使用 `[[页面名]]` 标出知识库依据；证据不足时明确说明缺口。
+3. 默认不写文件、不更新日志。只有用户明确授权“保存/沉淀本次回答”时才落盘。规范化问题文本时依次执行 Unicode NFC、去除首尾空白、把连续空白折叠为一个 ASCII 空格；`question_id` 为该 UTF-8 文本的 SHA-256 前 12 位小写十六进制。
+4. 写入前先扫描 `outputs/qa/` frontmatter 中的 `question_id`：已有唯一匹配时原位更新该文件；没有匹配时才创建 `outputs/qa/YYYY-MM-DD-{question_id}.md`。自动正文放在 `<!-- llm-wiki:qa:{question_id}:start -->` 与对应 `end` 之间，不覆盖标记外用户内容。单边标记或多个同 ID 文件时停止并报告；写后复读验证。
 
-2. **生成摘要**
-   - 创建/更新 `wiki/summaries/{Source}-标题.md`
-   - 使用 2.1 模板格式
+## Lint 工作流
 
-3. **提取概念**
-   - 识别文中重要概念
-   - 对每个概念：
-     - 如果 `wiki/concepts/概念名.md` 不存在，创建新页面
-     - 如果存在，更新页面并追加新证据
-     - 更新 `updated` 字段
+1. 用户明确要求后，扫描 `wiki/summaries/`、`wiki/concepts/`、`wiki/entities/` 和索引。
+2. 检查：缺失/重复 `source_id`、YAML 字段、同义重复概念、无来源断言、断链、索引重复或遗漏、孤立页面、相互矛盾的定义，以及长期未更新且确有新来源的页面。
+3. 将诊断报告写入 `outputs/health/YYYY-MM-DD-report.md`。自动生成内容放在 `<!-- llm-wiki:health:YYYY-MM-DD:start -->` 与对应 `end` 之间；同日重跑只替换该区块，保留标记外用户内容。旧版同日报告存在但没有标记时，只有能唯一识别完整的自动诊断章节边界时才原位升级；边界不明、单边标记或存在多个同日报告时停止并报告。报告列出证据、影响和建议，不把“日期较旧”本身当成错误。
+4. 诊断不等于修复。只有用户明确授权修复后才改 wiki 内容；不得借修复之名修改 `raw/` 或 `pages-ai/`。
+5. 修复后重新扫描受影响页面，确认问题已消除，并在内容实际变化时记录一次日志。
 
-4. **提取实体**
-   - 识别人物、公司、产品、书籍等实体
-   - 在 `wiki/entities/` 中创建或更新相应页面
+## 完成汇报
 
-5. **更新索引**
-   - 更新 `wiki/indexes/All-Sources.md`（添加新摘要链接）
-   - 更新 `wiki/indexes/All-Concepts.md`（如有新概念）
-   - 更新 `wiki/indexes/All-Entities.md`（如有新实体）
-
-6. **记录日志**
-   - 在 `wiki/log.md` 追加条目：
-   ```markdown
-   ## [YYYY-MM-DD] ingest | 文章标题
-   - Source: raw/articles/xxx.md
-   - Summary: wiki/summaries/xxx.md
-   - New concepts: 概念1, 概念2
-   - New entities: 实体1
-   - Key insight: 一句话关键发现
-   ```
-
-7. **汇报结果**
-   - 向用户汇报：新增/更新了哪些页面
-   - 指出重要发现：矛盾、新连接、待验证问题
-
-### Query（查询与问答）
-
-**触发条件**：用户提出问题
-
-**执行步骤**：
-
-1. **检索相关页面**
-   - 先读取 `wiki/indexes/` 找到相关页面
-   - 读取相关 `wiki/summaries/`、`wiki/concepts/`、`wiki/entities/`
-
-2. **综合回答**
-   - 基于检索到的内容回答
-   - 使用 [[页面名]] 格式引用来源
-
-3. **沉淀输出（可选）**
-   - 如果问题复杂或答案有价值：
-     - 保存到 `outputs/qa/YYYY-MM-DD-问题摘要.md`
-     - 文件内容包含：问题、回答、引用的来源链接
-
-4. **更新日志**
-   ```markdown
-   ## [YYYY-MM-DD] query | 问题摘要
-   - Output: outputs/qa/xxx.md（如有）
-   - Sources used: [[来源1]], [[来源2]]
-   ```
-
-### Lint（健康检查）
-
-**触发条件**：每周执行，或用户主动要求
-
-**执行步骤**：
-
-1. **扫描 wiki 目录**
-   - 遍历 `wiki/summaries/`、`wiki/concepts/`、`wiki/entities/`
-
-2. **检查项目**
-   - **一致性**：概念定义是否矛盾，同一概念是否有多个名称
-   - **完整性**：哪些概念缺少定义、例子或来源
-   - **孤立页面**：入链出链均 < 2 的页面
-   - **过时内容**：`updated` 日期久远且可能有新信息的页面
-
-3. **生成报告**
-   - 保存到 `outputs/health/YYYY-MM-DD-report.md`
-   - 包含：发现的问题列表、建议的修复方案
-
-4. **修复（经用户确认后）**
-   - 解决概念冲突
-   - 为孤立页面添加连接
-   - 更新过时内容
-
-5. **更新日志**
-   ```markdown
-   ## [YYYY-MM-DD] lint | 健康检查
-   - Report: outputs/health/xxx.md
-   - Issues found: X
-   - Actions taken: XXX
-   ```
-
----
-
-## 与 PARA 的融合
-
-用户同时使用 PARA 方法管理知识：
-
-- **01-Projects**（项目）：`pages-ai/01-projects/` 中项目相关页面
-- **02-Areas**（领域）：`pages-ai/02-areas/` 中领域相关页面
-- **03-Resources**（资源）：`pages-ai/03-resources/` 中资源相关页面
-- **04-Archives**（归档）：`pages-ai/04-archives/` 是归档资料
-
-**融合规则**：
-- 当 wiki 中的概念与某个项目/领域相关时，在概念页添加链接：
-  - `相关项目：[[pages-ai/01-projects/项目名称]]`
-  - `相关领域：[[pages-ai/02-areas/领域名称]]`
-- 用户可以手动在 `pages-ai/01-projects/` 和 `pages-ai/02-areas/` 的项目/领域页中添加链接到 wiki
-
----
-
-## 命名规范
-
-### 文件名
-- 使用 kebab-case（短横线连接）
-- 中文文件名直接使用中文
-- 英文统一小写
-
-### 标签 (tags)
-- `source` - 摘要来源
-- `concept` - 概念
-- `entity` - 实体
-- `person|company|product|book|tool` - 实体类型
-- 领域标签如：`ai`, `productivity`, `health` 等
-
-### 链接格式
-- 内部链接：`[[页面名]]` 或 `[[路径/页面名]]`
-- 带别名链接：`[[页面名|显示文本]]`
-
----
-
-## 矛盾处理
-
-当发现新资料与已有知识矛盾时：
-
-1. 在相关概念页的 `## 矛盾/争议` 部分记录
-2. 格式：
-   ```markdown
-   ### 矛盾点：XXX
-   - 观点A（来源：[[摘要A]]）：...
-   - 观点B（来源：[[摘要B]]）：...
-   - 分析：...
-   ```
-3. 向用户汇报矛盾，请求判断
-
----
-
-## 文件操作原则
-
-- **增量更新**：优先编辑现有文件，而非重建
-- **原子操作**：一次操作完成一个完整任务
-- **及时记录**：每次操作后立即更新 log.md
-- **引用优先**：所有结论必须有 [[来源]] 支撑
+简要报告所选模式、读取范围、新增/更新/未变化的文件、重要发现和未解决问题。Query 未获写入授权时明确说明“未写入文件”。

@@ -1,0 +1,53 @@
+{
+  "skill_name": "study-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "回顾 2026-07-20～2026-07-26 的学习。日记和微信读书都记录了同一天阅读同一本书，但只有日期和书名相同，没有时间区间。",
+      "expected_output": "不强行去重，标注可能重叠，并保持总计口径可核查。",
+      "files": [
+        "evals/fixtures/overlap/journals/2026-07-26.md",
+        "evals/fixtures/overlap/weread.json"
+      ],
+      "expectations": [
+        "缺少稳定 ID、明确互指或可验证时间段重合时不武断合并",
+        "边界周书目时长标为周级参考",
+        "工作交付不会被计入个人学习"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "2026-07-20～2026-07-26 的个人学习回顾已经存在，请对同一范围再做一次；用户没有说更新。",
+      "expected_output": "识别稳定标记并停止重复追加，保留原日记。",
+      "files": ["evals/fixtures/duplicate/journals/2026-07-26.md"],
+      "expectations": [
+        "不会追加第二个同范围区块",
+        "原有日记和标记外内容保持不变"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "回顾 2026-07-20 到 2026-07-26 的个人学习，但 journals/2026-07-26.md 不存在。",
+      "expected_output": "停止写入并说明缺少目标结束日日记，不擅自创建结构不完整的日记。",
+      "files": ["evals/fixtures/missing/journals/2026-07-25.md"],
+      "expectations": [
+        "不会创建 journals/2026-07-26.md",
+        "说明无法落盘的具体原因"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "完成 2026-07-20～2026-07-26 的学习回顾，但微信读书接口失败，日记侧有 90 分钟可确认学习。",
+      "expected_output": "保留日记侧 90 分钟，微信读书标为未获取，完整总投入填破折号。",
+      "files": [
+        "evals/fixtures/api-failure/journals/2026-07-26.md",
+        "evals/fixtures/api-failure/weread-error.json"
+      ],
+      "expectations": [
+        "日记侧可确认投入为 90 分钟",
+        "微信读书数据缺失不写成 0",
+        "本期个人学习总投入为 —"
+      ]
+    }
+  ]
+}
