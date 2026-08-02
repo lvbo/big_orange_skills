@@ -1,0 +1,35 @@
+{
+  "skill_name": "pages-ai-organizer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "请整理这个测试 Vault 的 pages-ai 根目录。Vault 位于 evals/fixtures/project-resource。请在你的输出目录中复制一份 Vault 后执行，不要修改 fixture；保存整理后的完整 pages-ai 目录和 result.md 汇总。",
+      "expected_output": "把有明确交付目标的暑期专项归入 Projects，把 AI 工具手册归入 Resources；更新正确的总览层级，移动原文件并生成可追溯汇总。",
+      "files": [
+        "evals/fixtures/project-resource/pages-ai/26年暑期冲高.md",
+        "evals/fixtures/project-resource/pages-ai/Claude Code 使用手册.md"
+      ],
+      "expectations": [
+        "26年暑期冲高.md 被移动到 pages-ai/01-projects/，并在 Projects 总览的“工作-产品类”下恰好链接一次",
+        "Claude Code 使用手册.md 被移动到 pages-ai/03-resources/，并在 Resources 总览的“技术工程 > AI”下恰好链接一次",
+        "两个根目录原文件均不再存在，候选正文内容保持不变",
+        "Areas 总览未被无关修改，result.md 逐项列出原路径、主归属、总览位置、目标路径和依据"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "帮我自动归类这个测试 Vault 的 pages-ai 根目录笔记。Vault 位于 evals/fixtures/area-collision。请在输出目录复制后操作，fixture 必须保持不变；保存整理后的完整 pages-ai 目录和 result.md。遇到目标目录同名文件不要覆盖。",
+      "expected_output": "将持续性家庭健康档案归入 Areas；检测 Resources 目标中的同名冲突并保留冲突候选，不覆盖或伪造成功。",
+      "files": [
+        "evals/fixtures/area-collision/pages-ai/家庭健康档案.md",
+        "evals/fixtures/area-collision/pages-ai/Git.md"
+      ],
+      "expectations": [
+        "家庭健康档案.md 被移动到 pages-ai/02-areas/，并在 Areas 总览的“个人 > 健康”下恰好链接一次",
+        "根目录 Git.md 因 pages-ai/03-resources/Git.md 已存在且内容不同而保留原处，已有目标文件没有被覆盖",
+        "Resources 总览没有为失败的 Git.md 新增误导性链接",
+        "result.md 把家庭健康档案列为已移动，把 Git.md 列为未移动并清楚说明同名内容冲突"
+      ]
+    }
+  ]
+}

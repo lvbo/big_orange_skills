@@ -61,6 +61,7 @@ flowchart LR
 |---|---|---|
 | [`wchat-read-to-notes`](wchat-read-to-notes/SKILL.md) | 导出微信读书个人划线、想法和点评，生成保真版与二次整理版 | `pages-ai/*-读书笔记*.md` |
 | [`llm-wiki`](llm-wiki/SKILL.md) | 摄取 `raw/` 资料，维护摘要、概念、实体与索引；支持知识问答和健康检查 | `wiki/`、`outputs/qa/`、`outputs/health/` |
+| [`pages-ai-organizer`](pages-ai-organizer/SKILL.md) | 将 `pages-ai/` 根目录新笔记归入 PARA 的最相关层级，更新总览并安全移动文件 | `pages-ai/01-projects/`、`02-areas/`、`03-resources/` |
 
 > `wchat-read-to-notes` 的名称为兼容现有调用而保留，功能指的是 WeChat Read / 微信读书笔记整理。
 
@@ -211,6 +212,7 @@ git clone git@github.com:lvbo/big_orange_skills.git
 做 2026 年 7 月月度复盘
 回顾最近 7 天的个人学习投入
 整理微信读书里的《书名》笔记
+整理 pages-ai 根目录笔记
 摄取 raw/articles/example.md 并更新 wiki
 检查 wiki 的断链和重复概念
 ```
@@ -229,7 +231,7 @@ skill-name/
     └── fixtures/
 ```
 
-当前仓库为 11 个 Skills 准备了 29 个边界用例，覆盖：
+当前仓库为 12 个 Skills 准备了 31 个边界用例，覆盖：
 
 - 重复执行与旧区块迁移；
 - D+1 晨记归属和跨年 ISO 周；
@@ -237,6 +239,7 @@ skill-name/
 - 日记原文与手工区块保护；
 - 微信读书分页、缺失图片和接口失败；
 - `raw/` 只读、稳定来源 ID 和索引去重；
+- `pages-ai/` 的 PARA 分类、总览去重与同名文件冲突保护；
 - 学习时间去重和数据缺失降级。
 
 修改 Skill 后，至少执行：
