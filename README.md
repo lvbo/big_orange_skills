@@ -6,12 +6,13 @@
 
 ## 能做什么
 
-这套 Skills 大致组成了四条工作流：
+这套 Skills 大致组成了四条业务工作流，并由一项交付保障能力贯穿：
 
 - **开始与规划一天**：创建晨间日记、准备当日日记、同步 Calendar 和 Things、检查计划是否超过 9 小时。
 - **日周月复盘**：根据日记与晨记统计计划和实际投入，识别偏差、模式与下一步行动。
 - **学习与阅读**：区分个人学习和日常工作，结合微信读书数据统计投入并整理可复习的读书笔记。
 - **知识库维护**：把 `raw/` 原始资料编译为摘要、概念、实体和索引，并进行有出处的问答与健康检查。
+- **卡住升级与交付闭环**：当 Agent 重复失败、缺少新证据或准备未经验证地结束时，切换排查路线并完成与风险相称的验证。
 
 ```mermaid
 flowchart LR
@@ -28,6 +29,11 @@ flowchart LR
     K[raw 原始资料] --> L[LLM Wiki]
     M[微信读书] --> J
     M --> N[读书笔记]
+    O[重复失败或交付前] --> P[升级排查与验证]
+    P -.保障.-> A
+    P -.保障.-> F
+    P -.保障.-> L
+    P -.保障.-> N
 ```
 
 ## Skill 一览
@@ -64,6 +70,14 @@ flowchart LR
 | [`pages-ai-organizer`](pages-ai-organizer/SKILL.md) | 将 `pages-ai/` 根目录新笔记归入 PARA 的最相关层级，更新总览并安全移动文件 | `pages-ai/01-projects/`、`02-areas/`、`03-resources/` |
 
 > `wchat-read-to-notes` 的名称为兼容现有调用而保留，功能指的是 WeChat Read / 微信读书笔记整理。
+
+### 执行保障
+
+| Skill | 用途 | 常见触发场景 |
+|---|---|---|
+| [`anti-stuck-delivery`](anti-stuck-delivery/SKILL.md) | 在连续失败、重复微调同一路线或交付前缺少验证时，重读证据、切换本质不同的排查路线，并完成交付检查 | “换个方法”“继续排查”“别放弃”“不要让我手动处理” |
+
+`anti-stuck-delivery` 不替代业务 Skill，也不会扩大 Agent 的权限或任务范围。首次失败按正常流程处理；确实缺少业务选择、凭据、授权或高风险操作确认时，仍应向用户说明阻塞点。
 
 ## 设计原则
 
@@ -215,13 +229,14 @@ git clone git@github.com:lvbo/big_orange_skills.git
 整理 pages-ai 根目录笔记
 摄取 raw/articles/example.md 并更新 wiki
 检查 wiki 的断链和重复概念
+连续失败了，换个方法继续排查并验证结果
 ```
 
 具体触发边界、失败处理和输出结构以各目录中的 `SKILL.md` 为准。
 
 ## 测试与维护
 
-每个 Skill 都包含：
+带有可重复边界测试的 Skill 通常包含：
 
 ```text
 skill-name/
@@ -231,7 +246,7 @@ skill-name/
     └── fixtures/
 ```
 
-当前仓库为 12 个 Skills 准备了 31 个边界用例，覆盖：
+当前仓库包含 13 个 Skills，并为其中的工作流 Skills 准备了 31 个边界用例，覆盖：
 
 - 重复执行与旧区块迁移；
 - D+1 晨记归属和跨年 ISO 周；
@@ -241,6 +256,8 @@ skill-name/
 - `raw/` 只读、稳定来源 ID 和索引去重；
 - `pages-ai/` 的 PARA 分类、总览去重与同名文件冲突保护；
 - 学习时间去重和数据缺失降级。
+
+`anti-stuck-delivery` 是跨任务的执行策略 Skill，目前以规则审阅和真实任务中的行为验证为主，不包含 fixture 型评测。
 
 修改 Skill 后，至少执行：
 
