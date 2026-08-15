@@ -1,0 +1,31 @@
+{
+  "skill_name": "pages-ai-humanizer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "在提供的测试 Vault 中，把文件名为《AI周报》的 pages-ai 笔记去掉 AI 味。请保留原文件，并将结果写到它所在的目录。",
+      "expected_output": "精确定位嵌套目录中的 AI周报.md，生成 AI周报-去掉AI味.md；保留 frontmatter、WikiLink、代码块、数字和原文件。",
+      "files": ["evals/fixtures/exact-match-vault/pages-ai/03-resources/写作/AI周报.md"],
+      "expectations": [
+        "目标文件 pages-ai/03-resources/写作/AI周报-去掉AI味.md 存在，且原文件 AI周报.md 与输入 fixture 逐字一致",
+        "目标文件完整保留原 frontmatter、两个 WikiLink、callout 引用、SQL 代码块，以及 820ms、460ms、1.8%、0.6% 四个数据",
+        "目标正文不再包含‘不仅仅是’、‘重要里程碑’、‘此外’、‘彰显’、‘共同书写更加辉煌的篇章’这些明显 AI 化表达",
+        "目标正文不是原文副本，且没有把更改说明、质量评分或聊天式回复写入笔记正文"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "在提供的测试 Vault 中，把『季度复盘』这篇 pages-ai 笔记去掉 AI 味。",
+      "expected_output": "发现多个无法安全区分的近似候选，列出相对路径请求用户选择，且不生成任何去掉AI味文件。",
+      "files": [
+        "evals/fixtures/ambiguous-vault/pages-ai/01-projects/季度复盘-业务.md",
+        "evals/fixtures/ambiguous-vault/pages-ai/02-areas/季度复盘-个人.md"
+      ],
+      "expectations": [
+        "没有创建任何文件名以 -去掉AI味.md 结尾的笔记，也没有修改两个候选源文件",
+        "result.md 同时列出 pages-ai/01-projects/季度复盘-业务.md 和 pages-ai/02-areas/季度复盘-个人.md",
+        "result.md 明确请求用户选择一个候选，没有擅自决定业务版或个人版"
+      ]
+    }
+  ]
+}
