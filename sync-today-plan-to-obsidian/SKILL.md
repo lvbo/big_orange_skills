@@ -12,8 +12,19 @@ compatibility: macOS；需要 accli、things CLI，以及可读写的 Obsidian V
 
 ### Apple Calendar
 
-- 用本机 `date` 得到本地时区的 `[今日 00:00, 明日 00:00)`，查询“工作”“个人”“吕波”三个日历。
+- 用本机 `date +%Y-%m-%d` 和 `date -v+1d +%Y-%m-%d` 得到今日、明日两个本地日期。把两个日期原样作为 `--from`、`--to` 参数，查询本地时区的 `[今日 00:00, 明日 00:00)`：
+
+  ```sh
+  today_date=$(date +%Y-%m-%d)
+  tomorrow_date=$(date -v+1d +%Y-%m-%d)
+  accli events "工作" --from "$today_date" --to "$tomorrow_date" --max 200 --json
+  accli events "个人" --from "$today_date" --to "$tomorrow_date" --max 200 --json
+  accli events "吕波" --from "$today_date" --to "$tomorrow_date" --max 200 --json
+  ```
+
+  `accli events` 的日期参数使用 `YYYY-MM-DD`。不要把日期拼成 `YYYY-MM-DD HH:mm`；该格式会返回 `INVALID_DATETIME`。
 - `accli calendars`、`accli events` 直接在非沙箱环境运行，用户已授权，无需确认。若仍返回 `NOT_AUTHORIZED`，报告 macOS 日历权限问题。
+- 任一查询返回 `INVALID_DATETIME` 时，先运行 `accli events --help` 核对参数格式。使用上述纯日期参数重新查询三个日历一次；只有格式正确的重试仍失败时，才把 Calendar 记为来源失败。同一组错误不按三个独立来源失败处理。
 - 优先读取 JSON 的 `summary`、`location`、`allDay`、`start`、`end`，并保留来源查询顺序“工作”“个人”“吕波”。
 - 纳入与当天区间有重叠的定时事件以及当天的全天事件。跨日事件显示源数据的本地起止时分，计算容量时只计与当天区间重叠的部分。
 
